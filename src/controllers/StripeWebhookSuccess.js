@@ -9,17 +9,12 @@ export async function stripeWebhook(request, reply) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   let event;
-  logger.info({ body1: request.body });
-  logger.info({ body2: JSON.parse(request.body) });
+  logger.info({ body: request.body });
   logger.info({ sig });
   logger.info({ webhookSecret });
 
   try {
-    event = stripe.webhooks.constructEvent(
-      JSON.parse(request.body),
-      sig,
-      webhookSecret
-    );
+    event = stripe.webhooks.constructEvent(request.body, sig, webhookSecret);
   } catch (err) {
     logger.error("Erreur de vérification du webhook Stripe :");
     logger.error({ err });
