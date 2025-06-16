@@ -18,9 +18,5 @@ export default async function routes(fastify, options) {
   fastify.get("/api/folders/", GetAllFolders);
   fastify.delete("/api/folder/:folder", DeleteOneFolder);
   fastify.post("/api/payment/checkout", createStripeCheckoutSession);
-  fastify.post(
-    "/api/payment/webhook",
-    { bodyLimit: 1048576, rawBody: true },
-    stripeWebhook
-  );
+  fastify.post("/api/payment/webhook", { bodyLimit: 1048576 }, stripeWebhook);
 }
