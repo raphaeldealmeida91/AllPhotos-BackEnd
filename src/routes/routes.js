@@ -1,4 +1,3 @@
-import { copyFileToFolder } from "../controllers/CopyFileToFolderSuccess.js";
 import { createStripeCheckoutSession } from "../controllers/CreateStripeCheckoutSession.js";
 import DeleteOneFolder from "../controllers/DeleteOneFolder.js";
 import GetAllFolders from "../controllers/GetAllFolders.js";
@@ -18,5 +17,14 @@ export default async function routes(fastify, options) {
   fastify.get("/api/folders/", GetAllFolders);
   fastify.delete("/api/folder/:folder", DeleteOneFolder);
   fastify.post("/api/payment/checkout", createStripeCheckoutSession);
-  fastify.post("/api/payment/webhook", { bodyLimit: 1048576 }, stripeWebhook);
+  fastify.post(
+    "/api/payment/webhook",
+    {
+      bodyLimit: 1048576,
+      config: {
+        rawBody: true,
+      },
+    },
+    stripeWebhook
+  );
 }
