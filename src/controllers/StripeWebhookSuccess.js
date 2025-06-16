@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import logger from "../utils/logger.js";
+import { copyFileToFolder } from "./CopyFileToFolderSuccess.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -17,22 +18,27 @@ export async function stripeWebhook(request, reply) {
     return reply.code(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Traitement des évènements Stripe
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
 
-    console.log("Paiement réussi !");
-    console.log("Session:", session);
+    logger.info("Paiement réussi !");
+    logger.info("Session:", session);
+    const customerEmail =
+      session.customer_details?.email || "email non disponible";
+    logger.info(`Email client : ${customerEmail}`);
 
-    // Ici tu récupères tes données transmises via metadata
-    const pathImgs = JSON.parse(session.metadata.images);
-
-    // Ta fonction métier ici
-    await traiterLaCommande(pathImgs, session);
-
+    try {
+      const pathImgs = JSON.parse(session.metadata.images);
+      if (Array.isArray(pathImgs)) {
+        await copyFileToFolder(imgPath);
+      } else {
+        logger.error("Metadata images n'est pas un tableau");
+      }
+    } catch (err) {
+      logger.error("Erreur lors de la copie des fichiers après paiement :");
+      logger.error({ err });
+    }
     return reply.code(200).send();
   }
-
-  // Pour les autres types d'événements
   return reply.code(200).send();
 }
