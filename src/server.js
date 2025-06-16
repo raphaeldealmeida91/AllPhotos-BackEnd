@@ -29,14 +29,6 @@ await fastify.register(fastifyCors, {
 
 await fastify.register(routes);
 
-fastify.addContentTypeParser(
-  "application/json",
-  { parseAs: "buffer" },
-  function (req, body, done) {
-    done(null, body);
-  }
-);
-
 fastify.addHook("onSend", async (request, reply, payload) => {
   reply.header("x-powered-by", "");
   return payload;

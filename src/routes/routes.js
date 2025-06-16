@@ -24,6 +24,18 @@ export default async function routes(fastify, options) {
       config: {
         rawBody: true,
       },
+      preParsing: (req, reply, payload, done) => {
+        let data = Buffer.alloc(0);
+
+        payload.on("data", (chunk) => {
+          data = Buffer.concat([data, chunk]);
+        });
+
+        payload.on("end", () => {
+          req.rawBody = data;
+          done(null, data);
+        });
+      },
     },
     stripeWebhook
   );
