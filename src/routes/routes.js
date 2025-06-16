@@ -19,7 +19,7 @@ export default async function routes(fastify, options) {
   fastify.post("/api/payment/checkout", createStripeCheckoutSession);
   fastify.post(
     "/api/payment/webhook",
-    { bodyLimit: "1mb", rawBody: true },
+    { bodyLimit: 1048576, rawBody: true },
     stripeWebhook
   );
 }
