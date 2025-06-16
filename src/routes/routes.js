@@ -25,15 +25,12 @@ export default async function routes(fastify, options) {
         rawBody: true,
       },
       preParsing: (req, reply, payload, done) => {
-        let data = Buffer.alloc(0);
-
-        payload.on("data", (chunk) => {
-          data = Buffer.concat([data, chunk]);
-        });
-
+        const chunks = [];
+        payload.on("data", (chunk) => chunks.push(chunk));
         payload.on("end", () => {
-          req.rawBody = data;
-          done(null, data);
+          const rawBody = Buffer.concat(chunks);
+          req.rawBody = rawBody;
+          done(null, rawBody);
         });
       },
     },
