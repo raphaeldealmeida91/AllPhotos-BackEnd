@@ -18,5 +18,26 @@ export default async function routes(fastify, options) {
   fastify.get("/api/folders/", GetAllFolders);
   fastify.delete("/api/folder/:folder", DeleteOneFolder);
   fastify.post("/api/payment/checkout", createStripeCheckoutSession);
-  fastify.post("/api/payment/webhook", { bodyLimit: 1048576 }, stripeWebhook);
+  fastify.route({
+    method: "POST",
+    url: "/api/payment/webhook",
+    bodyLimit: 1048576,
+    handler: stripeWebhook,
+    preParsing: (request, reply, payload, done) => {
+      const chunks = [];
+
+      payload.on("data", (chunk) => {
+        chunks.push(chunk);
+      });
+
+      payload.on("end", () => {
+        request.rawBody = Buffer.concat(chunks);
+        done();
+      });
+
+      payload.on("error", (err) => {
+        done(err);
+      });
+    },
+  });
 }
